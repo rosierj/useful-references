@@ -1,0 +1,37 @@
+Installed following nuget packages:
+Swashbuckle.AspNetCore.Newtonsoft
+Swashbuckle.AspNetCore.Newtonsoft
+
+Run following command in terminal:
+dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 6.3.1
+
+Copied dotnet-tools.json to .config folder on root of solution as was done in Client Portal API
+
+Also added post build event in csproj for each microservice
+
+<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet swagger tofile --output swagger.json $(OutputPath)\$(AssemblyName).dll v1 " />
+  </Target>
+
+Common errors:
+Exited with error code 1:Check buildPlatform: 'AnyCPU' and not 'Any CPU'
+Exited with error code -5*****: Ensure each endpoint doesn't have an ambiguous http method
+
+proper example might look like:
+
+namespace Something.API.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class SomethingController : Controller
+    {
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+}
+
+Notable here is the [HttpGet]

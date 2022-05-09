@@ -1,0 +1,49 @@
+steps:
+- task: Npm@1
+  displayName: 'Install Newman'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install newman -g'
+
+steps:
+- task: Npm@1
+  displayName: 'Install Newman Reporter'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install -g newman-reporter-html'
+
+steps:
+- task: Npm@1
+  displayName: 'Install JUnit_Complete'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install -g newman-reporter-junit_complete'
+
+steps:
+- script: 'newman run https://api.getpostman.com/collections/(CollectionID)?apikey=(APIKey) -n 1 -e https://api.getpostman.com/environments/(EnvironmentID)?apikey=(APIKey) -r cli,junit_complete --reporter-junit_complete-export JUnitReport.xml --verbose'
+  displayName: 'Postman Scripts - Run Newman CLI'
+  continueOnError: true
+
+steps:
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results JUnitReport.xml'
+  inputs:
+    testResultsFiles: JUnitReport.xml
+    failTaskOnFailedTests: true
+    testRunTitle: 'Title'
+
+steps:
+- task: calrom-jtejero.CalromEmailReportExtension.CalromEmailReport.CalromEmailReport@1
+  displayName: 'Send Email Report On Failure'
+  inputs:
+    sendMailConditionConfig: 'On Failure'
+    toAddress: Primary Email'
+    ccAddress: 'Secondary Email'
+    defaultDomain: yourdomain.com
+    usePreviousEnvironment: true
+    enableTLS: true
+    smtpConnectionEndpoint: 'No-Reply Email'
+  condition: succeededOrFailed()
